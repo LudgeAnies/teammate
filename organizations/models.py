@@ -1,14 +1,20 @@
 from django.db import models
 from users.models import User
+import uuid
 
 class Organization(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    code = models.CharField(max_length=10, unique=True)
+    invite_code = models.CharField(max_length=10, unique=True, blank=True, verbose_name='Код организации')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    users = models.ManyToManyField(User, through='UserOrganizationRole')
+    def save(self, *args, **kwargs):
+        if not self.invite_code:
+            self.invite_code = str(uuid.uuid4())[:10]
+        super().save(*args, **kwargs)
+
+    #users = models.ManyToManyField(User, through='UserOrganizationRole')
 
 class UserOrganizationRole(models.Model):
     ROLE_CHOICES = [
