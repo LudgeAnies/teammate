@@ -6,6 +6,7 @@ class Organization(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     invite_code = models.CharField(max_length=10, unique=True, blank=True, verbose_name='Код организации')
+    avatar = models.ImageField(upload_to='avatars/organizations', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -13,6 +14,9 @@ class Organization(models.Model):
         if not self.invite_code:
             self.invite_code = str(uuid.uuid4())[:10]
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
     #users = models.ManyToManyField(User, through='UserOrganizationRole')
 
@@ -36,4 +40,4 @@ class UserOrganizationRole(models.Model):
         verbose_name_plural = "Роли в организации"
 
     def __str__(self):
-        return f"{self.organization.name} - {self.user.username} ({self.get_role_display()})"
+        return f"{self.organization.name} - {self.user.full_name} ({self.get_role_display()})"
