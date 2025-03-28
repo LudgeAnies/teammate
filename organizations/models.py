@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+from users.models import CustomUser
 import uuid
 
 class Organization(models.Model):
@@ -15,6 +15,16 @@ class Organization(models.Model):
             self.invite_code = str(uuid.uuid4())[:10]
         super().save(*args, **kwargs)
 
+    # def clean(self):
+    #     if self.avatar:
+    #         try:
+    #             w, h = get_image_dimensions(self.avatar.file)
+    #             if w > 1024 or h > 1024:
+    #                 raise ValidationError("Размер изображения не должен превышать 1024x1024 пикселей")
+    #         except AttributeError:
+    #             pass
+    #     super().clean()
+
     def __str__(self):
         return self.name
 
@@ -25,7 +35,7 @@ class UserOrganizationRole(models.Model):
         ('employee', 'Сотрудник'),
         ('admin', 'Администратор'),
     ]
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='employee', verbose_name="Роль")
 

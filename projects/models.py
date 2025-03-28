@@ -1,55 +1,5 @@
-# from django.db import models
-# from users.models import User
-# from organizations.models import Organization
-
-# class Project(models.Model):
-#     name = models.CharField(max_length=255)
-#     description = models.TextField(blank=True, null=True)
-#     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-# class UserProjectRole(models.Model):
-#     ROLE_CHOICES = [
-#         ('employee', 'Сотрудник'),
-#         ('partner', 'Партнер'),
-#         ('manager', 'Менеджер'),
-#         ('leader', 'Руководитель'),
-#     ]
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-#     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-
-# class Task(models.Model):
-#     title = models.CharField(max_length=255)
-#     description = models.TextField(blank=True, null=True)
-#     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-#     status = models.CharField(max_length=50)
-#     type = models.CharField(max_length=50)
-#     deadline = models.DateTimeField()
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-# class SubTask(models.Model):
-#     title = models.CharField(max_length=255)
-#     description = models.TextField(blank=True, null=True)
-#     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-#     status = models.CharField(max_length=50)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-# class TaskAssignment(models.Model):
-#     ROLE_CHOICES = [
-#         ('executor', 'Исполнитель'),
-#         ('responsible', 'Ответственный'),
-#     ]
-#     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     role = models.CharField(max_length=12, choices=ROLE_CHOICES)
-
-
 from django.db import models
-from users.models import User
+from users.models import CustomUser
 from organizations.models import Organization
 import uuid
 
@@ -67,7 +17,7 @@ class Project(models.Model):
     invite_code = models.CharField(max_length=10, unique=True, blank=True, verbose_name="Код приглашения заказчика")
     avatar = models.ImageField(upload_to='avatars/projects', blank=True, null=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='new')
-    deadline = models.DateTimeField()
+    deadline = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -75,6 +25,21 @@ class Project(models.Model):
         if not self.invite_code:
             self.invite_code = str(uuid.uuid4())[:10]
         super().save(*args, **kwargs)
+
+    # def clean(self):
+    #     if self.avatar:
+    #         try:
+    #             w, h = get_image_dimensions(self.avatar.file)
+    #             if w > 1024 or h > 1024:
+    #                 raise ValidationError("Размер изображения не должен превышать 1024x1024 пикселей")
+    #         except AttributeError:
+    #             pass
+    #     super().clean()
+
+    def clean(self):
+        if self.deadline and self.deadline < timezone.now():
+            raise ValidationError("Дедлайн не может быть в прошлом!")
+        super().clean()
 
     def __str__(self):
         return self.name
@@ -86,7 +51,7 @@ class UserProjectRole(models.Model):
         ('manager', 'Менеджер'),
         ('leader', 'Руководитель'),
     ]
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     can_edit = models.BooleanField(default=False, verbose_name="Может редактировать")
@@ -130,17 +95,24 @@ class Task(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='new')
-    type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='task')
-    start_date = models.DateTimeField(blank=True, null=True) #
-    end_date = models.DateTimeField(blank=True, null=True) #
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='new', db_index=True)
+    type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='task', db_index=True)
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name='Дата начала')
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name='Дата завершения')
     #deadline = models.DateTimeField()
-    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='unknown') #
-    created_at = models.DateTimeField(auto_now_add=True)
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='unknown', db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+     def clean(self):
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValidationError("Дата начала не может быть позже даты завершения!")
+        super().clean() #
 
     def __str__(self):
         return self.title
+
+    
 
 class SubTask(models.Model):
     STATUS_CHOICES = [
@@ -162,12 +134,20 @@ class SubTask(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='new')
-    start_date = models.DateTimeField(blank=True, null=True) #
-    end_date = models.DateTimeField(blank=True, null=True) #
-    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='unknown') #
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True) #
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='new', db_index=True)
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name='Дата начала')
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name='Дата завершения')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='unknown', db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def clean(self):
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValidationError("Дата начала не может быть позже даты окончания!")
+        if self.task and self.start_date:
+            if self.start_date < self.task.start_date:
+                raise ValidationError("Дата начала подзадачи не может быть раньше даты начала задачи!")
+        super().clean()
 
     def __str__(self):
         return self.title
@@ -179,14 +159,14 @@ class TaskAssignment(models.Model):
         ('observer', 'Наблюдатель'),
     ]
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     role = models.CharField(max_length=12, choices=ROLE_CHOICES)
 
     def __str__(self):
         return f"{self.task.title} - {self.user.full_name} ({self.get_role_display()})"
 
 class Comment(models.Model): #
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -233,12 +213,12 @@ class CheckList(models.Model):
         return f"{self.title} ({'Выполнено' if self.is_completed else 'Не выполнено'})"
 
 class History(models.Model):
-    project = models.ForeignKey(Project, on_delete=CASCADE, blank=True, null=True)
-    task = models.ForeignKey(Task, on_delete=CASCADE, blank=True, null=True)
-    subtask = models.ForeignKey(SubTask, on_delete=CASCADE, blank=True, null=True)
-    user = models.ForeignKey(Task, on_delete=CASCADE, blank=True, null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True)
+    subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
     action = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"{self.user.full_name} - {self.action} ({self.created_at})"
