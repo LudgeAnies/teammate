@@ -7,8 +7,8 @@ class UserOrganizationRoleInline(admin.TabularInline):
     extra = 1
     
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'invite_code', 'created_at')
-    search_fields = ('name', 'invite_code')
+    list_display = ('name', 'slug', 'invite_code', 'created_at')
+    search_fields = ('name', 'invite_code', 'slug')
     inlines = [UserOrganizationRoleInline]
 
 class UserOrganizationRoleAdmin(admin.ModelAdmin):

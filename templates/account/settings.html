@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Настройки аккаунта{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Настройки аккаунта</h3>
+            </div>
+            <div class="card-body">
+                <h4>Двухфакторная аутентификация</h4>
+
+                {% if mfa %}
+                <p>Статус: <span class="badge bg-success">Включена</span></p>
+                <p>
+                    <a href="{% url 'mfa_deactivate_totp' %}" class="btn btn-danger">Отключить TOTP</a>
+                    <a href="{% url 'mfa_view_recovery_codes' %}" class="btn btn-secondary">Коды восстановления</a>
+                </p>
+                {% else %}
+                <p>Статус: <span class="badge bg-warning">Выключена</span></p>
+                <p>
+                    <a href="{% url 'setup_totp' %}" class="btn btn-primary">Включить TOTP</a>
+                </p>
+                {% endif %}
+
+                <!-- Другие настройки аккаунта -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

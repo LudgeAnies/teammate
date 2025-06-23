@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:8000 TeamMate.wsgi:application
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  celery_worker:
+    build: .
+    command: celery -A TeamMate worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - web
+
+volumes:
+  redis_data:

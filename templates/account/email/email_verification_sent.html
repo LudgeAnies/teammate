@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Подтверждение email</h3>
+                </div>
+                <div class="card-body text-center">
+                    <p>Мы отправили вам ссылку для подтверждения вашего адреса электронной почты.</p>
+                    <p>Пожалуйста, проверьте вашу почту и перейдите по ссылке для продолжения регистрации.</p>
+                    <p>Если письмо не пришло, проверьте папку "Спам" или <a href="{% url 'account_email_verification_sent' %}">отправьте письмо повторно</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

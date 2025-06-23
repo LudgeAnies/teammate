@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/signup3.css' %}">
+{% endblock %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="background-elements">
+    <img class="vector-65" src="{% static 'img/vector-650.svg' %}" alt="">
+    <img class="vector-64" src="{% static 'img/vector-640.svg' %}" alt="">
+</div>
+
+<header class="header">
+    <div class="logo">
+        <img class="group-9" src="{% static 'img/group-90.svg' %}" alt="Логотип">
+        <img class="group-10" src="{% static 'img/group-100.svg' %}" alt="Название">
+    </div>
+    <div class="activ-menu">
+        <img class="vuesax-linear-profile" src="{% static 'img/vuesax-linear-profile0.svg' %}" alt="Профиль">
+        <img class="vuesax-linear-sms-notification" src="{% static 'img/vuesax-linear-sms-notification0.svg' %}" alt="Уведомления">
+        <img class="group-11" src="{% static 'img/group-110.svg' %}" alt="Меню">
+    </div>
+</header>
+
+<div class="registration-container">
+    <h1 class="registration-title">РЕГИСТРАЦИЯ</h1>
+
+    <form method="post" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <input type="email" class="input-field" placeholder="Email" required>
+        </div>
+
+        <div class="form-group">
+            <input type="text" class="input-field" placeholder="Имя пользователя" required>
+        </div>
+
+        <div class="form-group">
+            <input type="tel" class="input-field" placeholder="Номер телефона" required>
+        </div>
+
+        <div class="form-group">
+            <input type="password" class="input-field" placeholder="Пароль" required>
+        </div>
+
+        <div class="form-group">
+            <input type="password" class="input-field" placeholder="Подтвердить пароль" required>
+        </div>
+
+        <div class="form-group recaptcha-group">
+            {{ form.captcha }}
+            {{ form.captcha.errors }}
+        </div>
+
+        <button type="submit" class="submit-btn">Зарегистрироваться</button>
+    </form>
+
+    <div class="login-link">
+        Уже есть аккаунт: <a href="{% url 'account_login' %}">Войти</a>
+    </div>
+    <div class="yandex-link">
+        <a href="{% provider_login_url 'google' %}">Зарегистрироваться через Google</a>
+    </div>
+</div>
+
+{% endblock %}

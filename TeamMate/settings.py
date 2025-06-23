@@ -12,46 +12,83 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-#from decouple import config
+import sys
+from decouple import config
+from timezone_field import rest_framework
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# config = Config(search_path='../')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = config('SECRET_KEY')
-SECRET_KEY = 'django-insecure-$nwybnvy*6w0nqo+)ohk3&p%=%y8vi%-zftt4e8!$s*j=27bwp'
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = config('SECRET_KEY_DJANGO')
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1'] # поменять при проде
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'users.apps.UsersConfig',
-    'organizations.apps.OrganizationsConfig',
-    'projects.apps.ProjectsConfig',
-    'notifications.apps.NotificationsConfig',
-    'phonenumber_field',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django_filters',
+    'corsheaders',
+    'django_vite',
+
+    'oauth2_provider',
+    'djoser',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.yandex',
+    'allauth.mfa',
+
+    'celery',
+    'django_celery_results',
+    'django_celery_beat',
+
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt.token_blacklist',
+    'crispy_forms',
+    #'webpack_loader',
+    #'crispy_bootstrap5',
+    
+#     'allauth_2fa',
+#     'django_otp',
+#     'django_otp.plugins.otp_totp',
+#    'otp_allauth',
+    
+    'django_recaptcha',
+    'users.apps.UsersConfig',
+    'organizations.apps.OrganizationsConfig',
+    'projects.apps.ProjectsConfig',
+    'notifications.apps.NotificationsConfig',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+    'allauth_2fa.middleware.AllauthTwoFactorMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -61,8 +98,7 @@ ROOT_URLCONF = 'TeamMate.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,23 +117,23 @@ WSGI_APPLICATION = 'TeamMate.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST'),
-#         'PORT': config('DB_PORT'),
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -123,9 +159,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
+TIME_ZONE = 'Europe/Moscow'
 
 USE_TZ = True
 
@@ -133,7 +167,29 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "static"),
+#     os.path.join(BASE_DIR, "frontend/dist"),
+# ]
+
+if DEBUG:
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+else:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, "static"),
+        os.path.join(BASE_DIR, "frontend/dist"),
+    ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+DJANGO_VITE = {
+    'default': {
+        'dev_mode': DEBUG,
+        'manifest_path': os.path.join(BASE_DIR, 'frontend/dist/.vite/manifest.json'),
+    }
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -142,10 +198,191 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+OAUTH2_PROVIDER = {
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 7200,
+    'REFRESH_TOKEN_EXPIRE_SECONDS': 30 * 24 * 7200,
+    'ROTATE_REFRESH_TOKEN': True,
+    'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.OAuthLibCore',
+    'SCOPES': {'read': 'Чтение', 'write': 'Запись', 'profile': 'Профиль'},
+}
+
 AUTHENTICATION_BACKENDS = [
     'users.backends.EmailOrUsernameModelBackend',
+    'social_core.backends.yandex.YandexOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-MEDIA_URL = '/media'
+# DRF settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        #'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+    ),
+    # ),
+    # 'DEFAULT_FILTER_BACKENDS': [
+    #     'django_filters.rest_framework.DjangoFilterBackend',
+    #     'rest_framework.filters.SearchFilter',
+    #     'rest_framework.filters.OrderingFilter',
+    # ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+SITE_ID = 1
+
+DJOSER = {
+    #"LOGIN_FIELD": "username",
+    "DOMAIN": "localhost",
+    "SITE_NAME": "Teammate",
+
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "USER_ID_FIELD": "id",
+    "SERIALIZERS": {
+        "user_create": "users.serializers.CustomUserCreateSerializer",
+        "user": "users.serializers.UserSerializer",
+        "current_user": "users.serializers.UserSerializer",
+    },
+    'TOKEN_MODEL': None,
+    'TOKEN_SERIALIZER': 'djoser.serializers.TokenSerializer',
+    #"SOCIAL_AUTH_TOKEN_STRATEGY": "oauth2_provider.oauth2_backends.OAuthLibCore",
+}
+
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+#ACCOUNT_LOGIN_METHODS = ['username', 'email']
+ACCOUNT_LOGIN_METHODS = []
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+
+# ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_SESSION_REMEMBER = True
+
+ACCOUNT_ADAPTER = 'users.adapter.CustomAccountAdapter'
+
+# ACCOUNT_FORMS = {
+#     'login': 'users.forms.CustomLoginForm',
+#     'signup': 'users.forms.CustomSignupForm',
+# }
+
+# ACCOUNT_SIGNUP_FORM_CLASS = 'users.forms.CustomSignupForm'
+
+# OTP_TOTP_ISSUER = "TeamMate"
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': ['profile', 'email'],
+#         'AUTH_PARAMS': {'access_type': 'online'}, #
+#         'APP': {
+#             'client_id': '1001585849819-8oigt1hclt2t3uhl2une82t543hoqois.apps.googleusercontent.com',
+#             'secret': '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',
+#         }
+#     }
+# }
+
+SOCIALACCOUNT_PROVIDERS = {
+    'yandex': {
+        'APP': {
+            'client_id': config('YANDEX_CLIENT_ID'),
+            'secret': config('YANDEX_CLIENT_SECRET'),
+        }
+    }
+}
+
+# SOCIAL_AUTH_ALLOWED_REDIRECT_URIS = [
+#     "http://localhost:8080/social-auth-complete?mode=register",
+#     "http://localhost:8080/social-auth-complete?mode=login",
+#     "http://localhost:8080/social-auth-complete",
+# ]
+
+SOCIAL_AUTH_ALLOWED_REDIRECT_URIS = [
+    "http://localhost:8000/social-auth-complete?mode=register",
+    "http://localhost:8000/social-auth-complete?mode=login",
+    "http://localhost:8000/social-auth-complete",
+    "http://localhost:8000/social-auth-complete/?mode=register",
+    "http://localhost:8000/social-auth-complete/?mode=login",
+    "http://localhost:8000/social-auth-complete/",
+]
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# LOGIN_REDIRECT_URL = 'verify_otp'
+LOGOUT_REDIRECT_URL = '/login'
+
+# LOGIN_URL = '/login'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # прод
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # для тестов в консоли
+
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL = EMAIL_HOST_USER
+EMAIL_ADMIN = EMAIL_HOST_USER
+
+
+RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# if 'test' in sys.argv:
+#     DATABASES['default'] = {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': ':memory:',
+#     }
+#     CELERY_TASK_ALWAYS_EAGER = True
+
+# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+# CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+
+CORS_ALLOWED_ORIGINS = [
+    #"http://localhost:5173",
+    "http://localhost:8000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {  # вывод в терминал (stdout)
+            'class': 'logging.StreamHandler',
+        },
+        'file': {     # вывод в файл (logfile.log)
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logfile.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',   # можно поставить 'DEBUG'/'INFO'/'WARNING'
+            'propagate': True,
+        },
+    },
+}
+
+# TEST = {
+#     'NAME': ''
+# }

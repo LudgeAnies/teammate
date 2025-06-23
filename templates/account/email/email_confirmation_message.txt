@@ -1,0 +1,18 @@
+{% load account %}
+{% user_display user as user_display %}
+
+{% autoescape off %}
+Здравствуйте, {{ user_display }}!
+
+Вы получили это письмо, потому что вы указали свой email 
+для регистрации на платформе {{ current_site.name }}.
+
+Для подтверждения email перейдите по ссылке:
+{{ activate_url }}
+
+Если вы не регистрировались на сайте {{ current_site.name }}, 
+проигнорируйте это письмо.
+
+С уважением,
+Команда {{ current_site.name }}
+{% endautoescape %}

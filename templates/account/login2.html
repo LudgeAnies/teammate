@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Вход в систему</h2>
+    <form method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="login">Email или имя пользователя</label>
+            <input type="text" name="login" id="login" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        <div class="form-group recaptcha-group">
+            {{ form.captcha }}
+            {{ form.captcha.errors }}
+        </div>
+
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+    <div class="auth-links">
+        <a href="{% url 'account_reset_password' %}">Забыли пароль?</a>
+        <a href="{% url 'account_signup' %}">Регистрация</a>
+        <a href="{% provider_login_url 'google' %}">Войти через Google</a>
+    </div>
+</div>
+{% endblock %}
+
+
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/signup3.css' %}">
+{% endblock %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+
+<div class="background-elements">
+  <img class="vector-65" src="{% static 'img/vector-650.svg' %}" alt="">
+  <img class="vector-64" src="{% static 'img/vector-640.svg' %}" alt="">
+</div>
+
+<header class="header">
+  <div class="logo">
+    <img class="group-9" src="{% static 'img/group-90.svg' %}" alt="Логотип">
+    <img class="group-10" src="{% static 'img/group-100.svg' %}" alt="Название">
+  </div>
+  <div class="activ-menu">
+    <img class="vuesax-linear-profile" src="{% static 'img/vuesax-linear-profile0.svg' %}" alt="Профиль">
+    <img class="vuesax-linear-sms-notification" src="{% static 'img/vuesax-linear-sms-notification0.svg' %}" alt="Уведомления">
+    <img class="group-11" src="{% static 'img/group-110.svg' %}" alt="Меню">
+  </div>
+</header>
+
+<div class="auth-container">
+    <h2>Вход в систему</h2>
+    <form method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="login">Email или имя пользователя</label>
+            <input type="text" name="login" id="login" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        <div class="form-group recaptcha-group">
+            {{ form.captcha }}
+            {{ form.captcha.errors }}
+        </div>
+
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+    <div class="auth-links">
+        <a href="{% url 'account_reset_password' %}">Забыли пароль?</a>
+        <a href="{% url 'account_signup' %}">Регистрация</a>
+        <a href="{% provider_login_url 'google' %}">Войти через Google</a>
+    </div>
+</div>
+{% endblock %}

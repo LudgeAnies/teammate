@@ -3,4 +3,8 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (TeamMate) (2)" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (TeamMate)" project-jdk-type="Python SDK" />
+  <component name="ProjectType">
+    <option name="id" value="jpab" />
+  </component>
 </project>

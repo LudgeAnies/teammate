@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Регистрация</h2>
+    <form method="post" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_first_name">Имя</label>
+            <input type="text" name="first_name" id="id_first_name" required>
+        </div>
+        <div class="form-group">
+            <label for="id_last_name">Фамилия</label>
+            <input type="text" name="last_name" id="id_last_name" required>
+        </div>
+        <div class="form-group">
+            <label for="id_email">Email</label>
+            <input type="email" name="email" id="id_email" required>
+        </div>
+        <div class="form-group">
+            <label for="id_username">Имя пользователя</label>
+            <input type="text" name="username" id="id_username" required>
+        </div>
+        <div class="form-group">
+            <label for="id_password1">Пароль</label>
+            <input type="password" name="password1" id="id_password1" required>
+        </div>
+        <div class="form-group">
+            <label for="id_password2">Подтверждение пароля</label>
+            <input type="password" name="password2" id="id_password2" required>
+        </div>
+        <div class="form-group recaptcha-group">
+            {{ form.captcha }}
+            {{ form.captcha.errors }}
+        </div>
+
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+    </form>
+    <div class="auth-links">
+        <span>Уже есть аккаунт?</span> <a href="{% url 'account_login' %}">Войти</a>
+        <a href="{% provider_login_url 'google' %}">Зарегистрироваться через Google</a>
+    </div>
+</div>
+{% endblock %}

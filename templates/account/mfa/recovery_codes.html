@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Коды восстановления{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Коды восстановления</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <p>Сохраните эти коды восстановления в надежном месте. Каждый код можно использовать только один раз.</p>
+                </div>
+
+                <div class="list-group mb-3">
+                    {% for code in recovery_codes %}
+                    <div class="list-group-item text-center font-monospace">{{ code }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{% url 'account_settings' %}" class="btn btn-primary">Готово</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(-74.64deg, rgba(24, 144, 255, 0.9) 0%, rgba(24, 144, 255, 0.9) 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.background-elements {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.vector-65, .vector-64 {
+  position: absolute;
+  opacity: 0.7;
+}
+
+.vector-65 {
+  right: -200px;
+  top: 0;
+  height: 100%;
+}
+
+.vector-64 {
+  right: -300px;
+  bottom: 0;
+  height: 50%;
+}
+
+.header {
+  background: #e2f1ff;
+  height: 60px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  height: 27px;
+}
+
+.activ-menu {
+  display: flex;
+  gap: 22px;
+}
+
+.activ-menu img {
+  width: 24px;
+  height: 24px;
+}
+
+.registration-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 100px auto;
+  padding: 40px;
+  background: rgba(33, 49, 60, 0.05);
+  border-radius: 10px;
+  backdrop-filter: blur(24px);
+  box-shadow: inset 0px 0px 68px 0px rgba(255, 255, 255, 0.05),
+              inset 0px 4px 10px 0px rgba(255, 255, 255, 0.15);
+}
+
+.registration-title {
+  color: #ffffff;
+  text-align: center;
+  font-size: 52px;
+  font-weight: 700;
+  margin-bottom: 60px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 14px;
+  background: rgba(33, 49, 60, 0.1);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  border: none;
+  box-shadow: inset 0px 0px 68px 0px rgba(0, 0, 0, 0.05),
+              inset 0px 4px 4px 0px rgba(0, 0, 0, 0.15);
+}
+
+.input-field::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  color: #1890ff;
+  font-size: 24px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 30px;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.login-link a {
+  color: #21313c;
+  font-weight: 500;
+  margin-left: 5px;
+}
+
+@media (max-width: 768px) {
+  .registration-container {
+    margin: 80px 20px;
+    padding: 30px 20px;
+  }
+
+  .registration-title {
+    font-size: 36px;
+    margin-bottom: 40px;
+  }
+
+  .input-field {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .submit-btn {
+    font-size: 20px;
+  }
+}

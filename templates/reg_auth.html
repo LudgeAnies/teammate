@@ -1,0 +1,34 @@
+{% load static %}
+<html>
+<head>
+    <title>{% block title %}Teammate{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    {% block styles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    {% endblock %}
+</head>
+<body>
+<div class="container mt-4">
+    {% block content %}
+        <div class="background-elements">
+  <img class="vector-65" src="{% static 'img/vector-650.svg' %}" alt="">
+  <img class="vector-64" src="{% static 'img/vector-640.svg' %}" alt="">
+</div>
+
+<header class="header">
+  <div class="logo">
+    <img class="group-9" src="{% static 'img/group-90.svg' %}" alt="Логотип">
+    <img class="group-10" src="{% static 'img/group-100.svg' %}" alt="Название">
+  </div>
+  <div class="activ-menu">
+    <img class="vuesax-linear-profile" src="{% static 'img/vuesax-linear-profile0.svg' %}" alt="Профиль">
+    <img class="vuesax-linear-sms-notification" src="{% static 'img/vuesax-linear-sms-notification0.svg' %}" alt="Уведомления">
+    <img class="group-11" src="{% static 'img/group-110.svg' %}" alt="Меню">
+  </div>
+</header>
+    {% endblock %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

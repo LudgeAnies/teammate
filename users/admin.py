@@ -37,27 +37,27 @@ from .models import CustomUser
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ('username', 'email', 'first_name', 'last_name', 'phone_number', 'user_type', 'is_active', 'is_staff')
-    list_filter = ('user_type', 'is_active', 'is_staff', 'is_superuser')
-    search_fields = ('username', 'email', 'first_name', 'last_name', 'phone_number')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff')
+    list_filter = ('is_active', 'is_staff', 'is_superuser')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('-created_at',)
 
     fieldsets = (
         (None, {
-            'fields': ('username', 'password'),
+            'fields': ('username', 'email', 'password'),
         }),
         ('Персональная информация', {
-            'fields': ('first_name', 'last_name', 'email', 'phone_number', 'avatar'),
+            'fields': ('first_name', 'last_name', 'avatar'), #
         }),
         ('Права доступа', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
-        ('Тип пользователя', {
-            'fields': ('user_type',),
-        }),
         ('Даты', {
             'fields': ('last_login', 'created_at', 'updated_at'),
         }),
+        ('Настройки', { #
+            'fields': ('timezone',),
+        })
     )
 
     readonly_fields = ('created_at', 'updated_at', 'last_login')
@@ -65,7 +65,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'first_name', 'last_name', 'phone_number', 'user_type', 'is_active', 'is_staff'),
+            'fields': ('username', 'email', 'password1', 'password2', 'first_name', 'last_name', 'is_active', 'is_staff'),
         }),
     )
 

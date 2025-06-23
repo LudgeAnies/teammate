@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="org-header">
+    <h1>{{ organization.name }}</h1>
+    <nav class="org-nav">
+        <a href="{% url 'organizations:settings' organization.slug %}">Настройки</a>
+        <a href="{% url 'organizations:notifications' organization.slug %}">Уведомления</a>
+        <a href="{% url 'projects:create' organization.slug %}">Создать проект</a>
+    </nav>
+</div>
+
+<div class="org-projects">
+    <h2>Проекты организации {{ organization.name }}</h2>
+    {% for project in organization.project_set.all %}
+        <div class="project-card">
+            <h3><a href="{% url 'projects:detail' organization.slug project.slug %}">{{ project.name }}</a></h3>
+            <p>{{ project.description }}</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

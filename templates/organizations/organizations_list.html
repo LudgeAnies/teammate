@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Доступные организации</h1>
+
+  <ul>
+    {% for organization in organizations %}
+      <li><a href="{% url 'organizations:detail' slug=organization.slug %}">{{ organization.name }}</a></li>
+    {% endfor %}
+  </ul>
+  
+  <a href="{% url 'organizations:create' %}">Создать свою организацию</a>
+
+  <a href="{% url 'organizations:invite' %}">Присоединиться к новой организации</a>
+{% endblock %}

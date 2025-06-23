@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Подтверждение двухфакторной аутентификации</h3>
+                </div>
+                <div class="card-body">
+                    <p>Введите 6-значный код из приложения аутентификации:</p>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="code">Код подтверждения</label>
+                            <input type="text" name="code" id="code" class="form-control" autocomplete="off" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Подтвердить</button>
+                    </form>
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger mt-3">
+                        Неверный код подтверждения. Пожалуйста, попробуйте снова.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
